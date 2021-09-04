@@ -58,12 +58,17 @@ public class PlayerManager : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
-        initENet();
+        //initENet();
     }
 
 
     void FixedUpdate()
     {
+        if (m_Peer.State == PeerState.Uninitialized)
+        {
+            return;
+        }
+
         updateENet();
 
         // smooth moving players
@@ -100,6 +105,11 @@ public class PlayerManager : MonoBehaviour
 
     void OnDestroy()
     {
+        if (m_Peer.State == PeerState.Uninitialized)
+        {
+            return;
+        }
+
         m_Peer.DisconnectNow(0);
         m_Client.Dispose();
         ENet.Library.Deinitialize();
@@ -246,6 +256,16 @@ public class PlayerManager : MonoBehaviour
 
     private void OnGUI()
     {
+        if (m_Peer.State == PeerState.Uninitialized)
+        {
+            m_ServerIP = GUILayout.TextField(m_ServerIP);
+
+            if (GUILayout.Button("Connect"))
+            {
+                initENet();
+            }
+        }
+
         if (GUILayout.Button("Reload"))
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
